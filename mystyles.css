@@ -1,0 +1,52 @@
+body {
+    text-align: center;
+    color: black;
+    background-color:turquoise;
+    margin: 0;
+    min-height: 100vh;
+    position: relative;
+    font-family: Arial, sans-serif;
+}
+
+    nav {;
+        padding: 20px;
+        text-align: left;
+        width: 50%;
+    }
+
+.boat-image {
+    float: right;
+    margin: 10px;
+}
+
+.youtube-video {
+    float: right;
+    margin: 10px;
+}
+
+.back-link {
+    position: fixed;
+    bottom: 10px;
+    right: 10px;
+    background-color: white;
+    color: black;
+    padding: 10px 15px;
+    border: 2px solid black;
+    text-decoration: none;
+    font-weight: bold;
+ 
+
+.header {
+    margin: 20px;
+}
+
+.content {
+    margin: 20px auto;
+    width: 80%;
+}
+
+.footer {
+    margin: 20px;
+    text-align: center;
+}   z-index: 1000;
+}

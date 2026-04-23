@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <title>Italian Wordle</title>
+
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      background-color: #121213;
+      color: white;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(6, 60px);
+      gap: 8px;
+      justify-content: center;
+      margin-top: 40px;
+    }
+
+    .tile {
+      width: 60px;
+      height: 60px;
+      border: 2px solid #3a3a3c;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      font-weight: bold;
+      text-transform: uppercase;
+      background-color: #121213;
+      color: white;
+    }
+
+    .gray { background-color: #3a3a3c; }
+    .yellow { background-color: #b59f3b; }
+    .green { background-color: #538d4e; }
+
+    input {
+      margin-top: 20px;
+      padding: 10px;
+      font-size: 18px;
+      text-transform: uppercase;
+    }
+
+    button {
+      padding: 10px 15px;
+      font-size: 14px;
+      cursor: pointer;
+      margin-top: 10px;
+    }
+
+    .sentence-box {
+      margin-top: 20px;
+      font-size: 20px;
+      letter-spacing: 3px;
+    }
+
+    .hint-box {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      text-align: right;
+    }
+
+    #nextRoundBtn {
+      display: none;
+      margin-top: 15px;
+    }
+  </style>
+</head>
+
+<body>
+
+  <h1>Wordle Italiano (6 lettere)</h1>
+  <h3 id="roundDisplay">Round 1 / 15</h3>
+
+  <div class="grid" id="grid"></div>
+
+  <input id="guessInput" maxlength="6" placeholder="Scrivi parola">
+  <br>
+  <button onclick="submitGuess()">Invia</button>
+
+  <div class="sentence-box" id="sentenceBox"></div>
+
+  <button id="nextRoundBtn" onclick="nextRound()">Prossimo Round</button>
+
+  <div class="hint-box">
+    <div id="hintText"></div>
+  </div>
+
+  <script>
+    const words = [
+      "AMOREI","CASINO","LAVORO","SCUOLA","GATTON",
+      "NOTARE","VIVERE","TEMERE","ANDATO","VEDERE",
+      "DORMIR","MANGIA","SCRIVE","PARTIR","CORRER"
+    ];
+
+    const sentences = {
+      "AMOREI": "Se potessi, io ______ viaggiare di più.",
+      "CASINO": "Abbiamo passato la notte al ______ di Venezia.",
+      "LAVORO": "Devo finire il mio ______ entro stasera.",
+      "SCUOLA": "Vado a ______ ogni mattina.",
+      "GATTON": "Il bambino inizia a ______ sul pavimento.",
+      "NOTARE": "Puoi ______ la differenza?",
+      "VIVERE": "Voglio ______ in Italia.",
+      "TEMERE": "Non devi ______ il cambiamento.",
+      "ANDATO": "Sono ______ al mercato.",
+      "VEDERE": "Voglio ______ quel film.",
+      "DORMIR": "Mi piace ______ presto.",
+      "MANGIA": "Lui ______ una mela.",
+      "SCRIVE": "Lei ______ una lettera.",
+      "PARTIR": "Dobbiamo ______ subito.",
+      "CORRER": "Mi piace ______ al parco."
+    };
+
+    let round = 1;
+    let usedWords = [];
+    let secretWord;
+    let currentRow;
+    let revealed;
+
+    const grid = document.getElementById("grid");
+    const sentenceBox = document.getElementById("sentenceBox");
+    const hintText = document.getElementById("hintText");
+    const nextBtn = document.getElementById("nextRoundBtn");
+    const roundDisplay = document.getElementById("roundDisplay");
+
+    function pickWord() {
+      let available = words.filter(w => !usedWords.includes(w));
+      const word = available[Math.floor(Math.random() * available.length)];
+      usedWords.push(word);
+      return word;
+    }
+
+    function setupRound() {
+      grid.innerHTML = "";
+      currentRow = 0;
+      revealed = ["_","_","_","_","_","_"];
+      secretWord = pickWord();
+
+      for (let i = 0; i < 36; i++) {
+        const tile = document.createElement("div");
+        tile.classList.add("tile");
+        grid.appendChild(tile);
+      }
+
+      updateSentence();
+      hintText.textContent = "";
+      nextBtn.style.display = "none";
+      roundDisplay.textContent = `Round ${round} / 15`;
+    }
+
+    function updateSentence() {
+      const wordDisplay = revealed.join("");
+      sentenceBox.textContent = sentences[secretWord].replace("______", wordDisplay);
+    }
+
+    function revealNextLetter() {
+      let hidden = revealed
+        .map((v,i) => v === "_" ? i : null)
+        .filter(v => v !== null);
+
+      if (hidden.length > 0) {
+        const rand = hidden[Math.floor(Math.random() * hidden.length)];
+        revealed[rand] = secretWord[rand];
+      }
+    }
+
+    function giveAutoHint() {
+      const rand = Math.floor(Math.random() * 6);
+      hintText.textContent = "Hint: contiene la lettera → " + secretWord[rand];
+    }
+
+    function submitGuess() {
+      if (nextBtn.style.display === "block") return;
+
+      const input = document.getElementById("guessInput");
+      const guess = input.value.toUpperCase();
+
+      if (guess.length !== 6) {
+        alert("Inserisci una parola di 6 lettere!");
+        return;
+      }
+
+      const tiles = document.querySelectorAll(".tile");
+
+      for (let i = 0; i < 6; i++) {
+        const tile = tiles[currentRow * 6 + i];
+        const letter = guess[i];
+
+        tile.textContent = letter;
+
+        if (letter === secretWord[i]) {
+          tile.classList.add("green");
+        } else if (secretWord.includes(letter)) {
+          tile.classList.add("yellow");
+        } else {
+          tile.classList.add("gray");
+        }
+      }
+
+      if (guess === secretWord) {
+        alert("Hai vinto questo round!");
+        nextBtn.style.display = "inline-block";
+        return;
+      }
+
+      revealNextLetter();
+      giveAutoHint();
+      updateSentence();
+
+      currentRow++;
+      input.value = "";
+
+      if (currentRow === 6) {
+        alert("Hai perso! La parola era: " + secretWord);
+        nextBtn.style.display = "inline-block";
+      }
+    }
+
+    function nextRound() {
+      if (round === 15) {
+        alert("Hai completato tutti i 15 round!");
+        return;
+      }
+
+      round++;
+      setupRound();
+    }
+
+    setupRound();
+  </script>
+  <a href="fromScratch.html" style="position: fixed; bottom: 10px; right: 10px; background-color: white; color: black; padding: 5px 10px; border: 1px solid black; text-decoration: none; font-weight: bold;">Go to From Scratch</a>
+</body>
+</html>
